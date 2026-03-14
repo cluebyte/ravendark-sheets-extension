@@ -27,7 +27,7 @@ Works on **Chrome** and **Firefox** (Manifest V3).
 
 1. Open a RavenDark character sheet (`/characters/<uuid>`).
 2. Open your Roll20 game in another tab.
-3. On the character sheet, use the **Roll** buttons injected next to rollable values (ability scores, attack roll, damage, spellcasting check, spell damage). Each button sends the appropriate formula to Roll20 chat.
+3. On the character sheet, use the **Roll** buttons injected next to rollable values (ability scores, attack roll, damage, critical damage, spellcasting check, spell damage). Each button sends the appropriate formula to Roll20 chat.
 
 ## How roll buttons are added
 
@@ -38,6 +38,7 @@ The extension looks for elements with `data-roll-type` on the sheet (set by the 
 | `ability` | `data-ability`, `data-modifier` | `/roll 1d20 + <modifier>` |
 | `attack` | `data-modifier`, `data-stat`, etc. | `/roll 1d20 + <modifier>` |
 | `damage` | `data-formula`, `data-weapon-name` | `/roll <formula>` (e.g. 1d8+2) |
+| `critical-damage` | `data-formula`, `data-weapon-name` | `/roll <formula>` (e.g. 2d12+1) |
 | `spellcasting` | `data-modifier`, `data-stat` | `/roll 1d20 + <modifier>` |
 | `spell-damage` | `data-bonus` | `/roll 1d6 + <bonus>` |
 

@@ -1,6 +1,6 @@
 /**
  * RavenDark character sheet content script: injects "Roll" buttons next to
- * elements with data-roll-type (ability, attack, damage, spellcasting, spell-damage)
+ * elements with data-roll-type (ability, attack, damage, critical-damage, spellcasting, spell-damage)
  * and sends the computed formula to Roll20 via the background.
  */
 (function () {
@@ -97,6 +97,13 @@
         if (!formula) return null;
         const weaponName = (ds.weaponName || '').trim();
         const name = weaponName ? `Damage: ${weaponName}` : 'Damage';
+        return `&{template:default} {{name=${name}}} {{Damage=[[${formula}]]}}`;
+      }
+      case 'critical-damage': {
+        const formula = (ds.formula || '').trim().replace(/\s/g, '');
+        if (!formula) return null;
+        const weaponName = (ds.weaponName || '').trim();
+        const name = weaponName ? `Critical Damage: ${weaponName}` : 'Critical Damage';
         return `&{template:default} {{name=${name}}} {{Damage=[[${formula}]]}}`;
       }
       case 'spell-damage': {
