@@ -27,9 +27,18 @@
     return null;
   }
 
+  /** Format modifier for inline roll: no spaces, e.g. +2 or -1 */
+  function inlineMod(n) {
+    const num = Number.isNaN(n) ? 0 : n;
+    return num >= 0 ? `+${num}` : `${num}`;
+  }
+
+  /** Roll20 critical success (20) and critical failure (1) for d20 rolls */
+  const D20_CRIT = 'cs20cf1';
+
   /**
-   * Build Roll20 /roll command from an element's data-roll-type and dataset.
-   * Matches attributes from ravenloft-sheets: CombatBonusesSummary and CharacterStatBlock.
+   * Build Roll20 message from an element's data-roll-type and dataset.
+   * Uses &{template:default} for styled output; falls back to /roll if template would be empty.
    */
   function formulaFromElement(el) {
     const type = el.getAttribute('data-roll-type');
@@ -40,8 +49,9 @@
       case 'ability': {
         const mod = ds.modifier != null ? parseInt(ds.modifier, 10) : 0;
         if (Number.isNaN(mod)) return null;
-        const sign = mod >= 0 ? '+' : '';
-        return `/roll 1d20 ${sign}${mod}`;
+        const abilityName = (ds.ability || 'Check').toUpperCase();
+        const roll = `[[1d20${inlineMod(mod)}${D20_CRIT}]]`;
+        return `&{template:default} {{name=${abilityName} (${mod >= 0 ? '+' : ''}${mod})}} {{Roll=${roll}}}`;
       }
       case 'attack': {
         const statMod = parseInt(ds.statModifier, 10);
@@ -49,38 +59,37 @@
         const s = (n) => (Number.isNaN(n) ? 0 : n);
         const stat = s(statMod);
         const bonus = s(attackBonus);
-        const sign1 = stat >= 0 ? '+' : '';
-        const sign2 = bonus >= 0 ? '+' : '';
-        return `/roll 1d20 ${sign1}${stat} ${sign2}${bonus}`;
+        const weaponName = (ds.weaponName || 'Attack').trim();
+        const roll = `[[1d20${inlineMod(stat)}${inlineMod(bonus)}${D20_CRIT}]]`;
+        const weaponLabel = weaponName ? ` {{Weapon=${weaponName}}}` : '';
+        return `&{template:default} {{name=Attack Roll}} {{Roll=${roll}}}${weaponLabel}`;
       }
       case 'spellcasting': {
         const statMod = ds.statModifier != null ? parseInt(ds.statModifier, 10) : null;
         const spellBonus = ds.spellCheckBonus != null ? parseInt(ds.spellCheckBonus, 10) : null;
-        const useSplit = statMod != null && spellBonus != null && !Number.isNaN(statMod) && !Number.isNaN(spellBonus) && (statMod !== 0 || spellBonus !== 0);
-        if (useSplit) {
-          const s1 = statMod >= 0 ? '+' : '';
-          const s2 = spellBonus >= 0 ? '+' : '';
-          return `/roll 1d20 ${s1}${statMod} ${s2}${spellBonus}`;
-        }
-        let mod = ds.modifier != null ? parseInt(ds.modifier, 10) : 0;
-        if (Number.isNaN(mod)) mod = 0;
+        let mod = 0;
+        if (statMod != null && !Number.isNaN(statMod)) mod += statMod;
+        if (spellBonus != null && !Number.isNaN(spellBonus)) mod += spellBonus;
         if (mod === 0) {
-          const displayed = parseDisplayedModifier(el);
-          if (displayed !== null) mod = displayed;
+          const fromDisplay = parseDisplayedModifier(el);
+          if (fromDisplay !== null) mod = fromDisplay;
         }
-        const sign = mod >= 0 ? '+' : '';
-        return `/roll 1d20 ${sign}${mod}`;
+        const statLabel = (ds.stat || 'Spell').toUpperCase();
+        const roll = `[[1d20${inlineMod(mod)}${D20_CRIT}]]`;
+        return `&{template:default} {{name=Spellcasting}} {{${statLabel}=${roll}}}`;
       }
       case 'damage': {
-        const formula = (ds.formula || '').trim();
+        const formula = (ds.formula || '').trim().replace(/\s/g, '');
         if (!formula) return null;
-        return `/roll ${formula}`;
+        const weaponName = (ds.weaponName || '').trim();
+        const name = weaponName ? `Damage: ${weaponName}` : 'Damage';
+        return `&{template:default} {{name=${name}}} {{Damage=[[${formula}]]}}`;
       }
       case 'spell-damage': {
         const bonus = ds.bonus != null ? parseInt(ds.bonus, 10) : 0;
         if (Number.isNaN(bonus)) return null;
-        const sign = bonus >= 0 ? '+' : '';
-        return `/roll 1d6 ${sign}${bonus}`;
+        const roll = `[[1d6${inlineMod(bonus)}]]`;
+        return `&{template:default} {{name=Spell Damage}} {{Damage=${roll}}}`;
       }
       default:
         return null;
