@@ -116,20 +116,20 @@
         { action: 'postToRoll20', formula },
         function (response) {
           if (chrome.runtime.lastError) {
-            console.warn('[RavenDark→Roll20] sendMessage error:', chrome.runtime.lastError.message);
+            console.debug('[RavenDark→Roll20] sendMessage error:', chrome.runtime.lastError.message);
             return;
           }
         if (response && !response.success) {
-          console.warn('[RavenDark→Roll20] Roll20 reported:', response.error || 'Failed to send');
+          console.debug('[RavenDark→Roll20] Roll20 reported:', response.error || 'Failed to send');
         } else if (response && response.success) {
-          console.log('[RavenDark→Roll20] Sent to Roll20 OK');
+          console.debug('[RavenDark→Roll20] Sent to Roll20 OK');
         }
         }
       );
     } catch (err) {
       const msg = err && err.message ? String(err.message) : '';
       if (msg.includes('Extension context invalidated') || msg.includes('invalidated')) {
-        console.warn('[RavenDark→Roll20] Extension was reloaded or updated. Refresh this character sheet page (F5) and try again.');
+        console.debug('[RavenDark→Roll20] Extension was reloaded or updated. Refresh this character sheet page (F5) and try again.');
       } else {
         throw err;
       }
@@ -151,10 +151,10 @@
       const container = btn.closest('[data-roll-type]');
       const formula = container ? formulaFromElement(container) : null;
       if (!formula) {
-        console.warn('[RavenDark→Roll20] Could not get formula from container');
+        console.debug('[RavenDark→Roll20] Could not get formula from container');
         return;
       }
-      console.log('[RavenDark→Roll20] Roll clicked, formula:', formula);
+      console.debug('[RavenDark→Roll20] Roll clicked, formula:', formula);
       sendToRoll20(formula);
     });
 

@@ -67,7 +67,7 @@ function sendMessageToChat(text) {
   const chatInput = findChatInput();
   if (!chatInput) {
     const err = 'Chat input not found. Open Roll20, focus the chat box, then try again. (If the game just loaded, wait a moment.)';
-    console.warn('[RavenDark→Roll20] Roll20:', err);
+    console.debug('[RavenDark→Roll20] Roll20:', err);
     return { success: false, error: err };
   }
   chatInput.value = text;
@@ -76,11 +76,11 @@ function sendMessageToChat(text) {
   const sendBtn = findSendButton();
   if (!sendBtn) {
     const err = 'Send button not found. Make sure the chat panel is visible on the Roll20 page.';
-    console.warn('[RavenDark→Roll20] Roll20:', err);
+    console.debug('[RavenDark→Roll20] Roll20:', err);
     return { success: false, error: err };
   }
   sendBtn.click();
-  console.log('[RavenDark→Roll20] Roll20: Sent to chat:', text);
+  console.debug('[RavenDark→Roll20] Roll20: Sent to chat:', text);
   return { success: true };
 }
 
@@ -88,7 +88,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.action !== 'sendToChat' || typeof msg.formula !== 'string') {
     return false;
   }
-  console.log('[RavenDark→Roll20] Roll20: Received sendToChat, formula:', msg.formula);
+  console.debug('[RavenDark→Roll20] Roll20: Received sendToChat, formula:', msg.formula);
   const result = sendMessageToChat(msg.formula);
   sendResponse(result);
   return false;
