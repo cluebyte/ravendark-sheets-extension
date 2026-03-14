@@ -1,6 +1,6 @@
 # Privacy Policy for RavenDark Sheets to Roll20
 
-**Last updated:** [Date]
+**Last updated:** March 14 2026
 
 ## Summary
 
