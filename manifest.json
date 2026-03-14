@@ -3,10 +3,10 @@
   "name": "RavenDark Sheets to Roll20",
   "version": "0.1.0",
   "description": "Add Roll buttons on RavenDark character sheets and send roll commands to Roll20 chat.",
-  "permissions": ["tabs"],
+  "permissions": ["tabs", "scripting"],
   "host_permissions": [
     "https://ravendark-sheets.vercel.app/characters/*",
-    "https://app.roll20.net/editor/*"
+    "https://app.roll20.net/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -19,7 +19,7 @@
       "run_at": "document_end"
     },
     {
-      "matches": ["https://app.roll20.net/editor/*"],
+      "matches": ["https://app.roll20.net/*"],
       "js": ["content-roll20.js"],
       "run_at": "document_end"
     }

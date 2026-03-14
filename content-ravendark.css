@@ -1,22 +1,31 @@
-/* RavenDark extension: injected Roll button(s) */
-.ravendark-roll-toolbar {
-  padding: 6px 8px;
-  margin-bottom: 8px;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+/* RavenDark extension: injected Roll buttons next to [data-roll-type] */
+.ravendark-roll-row {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  text-align: center;
+}
+
+.ravendark-roll-row + .ravendark-roll-row {
+  margin-top: 4px;
 }
 
 .ravendark-roll-btn {
-  padding: 6px 12px;
-  font-size: 13px;
+  display: inline-block;
+  margin-left: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 4px;
   background: #228be6;
   color: #fff;
+  vertical-align: middle;
+}
+
+.ravendark-roll-row .ravendark-roll-btn {
+  margin-left: 0;
 }
 
 .ravendark-roll-btn:hover {
@@ -26,3 +35,4 @@
 .ravendark-roll-btn:active {
   background: #1971c2;
 }
+
