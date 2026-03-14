@@ -37,6 +37,17 @@
   const D20_CRIT = 'cs20cf1';
 
   /**
+   * Get d20 dice expression and label suffix from data-advantage.
+   * advantage -> 2d20kh1 (keep highest), disadvantage -> 2d20kl1 (keep lowest), none -> 1d20.
+   */
+  function getD20AndLabel(advantage) {
+    const adv = (advantage || 'none').toLowerCase();
+    if (adv === 'advantage') return { dice: '2d20kh1', suffix: ' (Advantage)' };
+    if (adv === 'disadvantage') return { dice: '2d20kl1', suffix: ' (Disadvantage)' };
+    return { dice: '1d20', suffix: '' };
+  }
+
+  /**
    * Build Roll20 message from an element's data-roll-type and dataset.
    * Uses &{template:default} for styled output; falls back to /roll if template would be empty.
    */
@@ -49,9 +60,10 @@
       case 'ability': {
         const mod = ds.modifier != null ? parseInt(ds.modifier, 10) : 0;
         if (Number.isNaN(mod)) return null;
+        const { dice, suffix } = getD20AndLabel(ds.advantage);
         const abilityName = (ds.ability || 'Check').toUpperCase();
-        const roll = `[[1d20${inlineMod(mod)}${D20_CRIT}]]`;
-        return `&{template:default} {{name=${abilityName} (${mod >= 0 ? '+' : ''}${mod})}} {{Roll=${roll}}}`;
+        const roll = `[[${dice}${inlineMod(mod)}${D20_CRIT}]]`;
+        return `&{template:default} {{name=${abilityName} (${mod >= 0 ? '+' : ''}${mod})${suffix}}} {{Roll=${roll}}}`;
       }
       case 'attack': {
         const statMod = parseInt(ds.statModifier, 10);
@@ -59,10 +71,11 @@
         const s = (n) => (Number.isNaN(n) ? 0 : n);
         const stat = s(statMod);
         const bonus = s(attackBonus);
+        const { dice, suffix } = getD20AndLabel(ds.advantage);
         const weaponName = (ds.weaponName || 'Attack').trim();
-        const roll = `[[1d20${inlineMod(stat)}${inlineMod(bonus)}${D20_CRIT}]]`;
+        const roll = `[[${dice}${inlineMod(stat)}${inlineMod(bonus)}${D20_CRIT}]]`;
         const weaponLabel = weaponName ? ` {{Weapon=${weaponName}}}` : '';
-        return `&{template:default} {{name=Attack Roll}} {{Roll=${roll}}}${weaponLabel}`;
+        return `&{template:default} {{name=Attack Roll${suffix}}} {{Roll=${roll}}}${weaponLabel}`;
       }
       case 'spellcasting': {
         const statMod = ds.statModifier != null ? parseInt(ds.statModifier, 10) : null;
@@ -74,9 +87,10 @@
           const fromDisplay = parseDisplayedModifier(el);
           if (fromDisplay !== null) mod = fromDisplay;
         }
+        const { dice, suffix } = getD20AndLabel(ds.advantage);
         const statLabel = (ds.stat || 'Spell').toUpperCase();
-        const roll = `[[1d20${inlineMod(mod)}${D20_CRIT}]]`;
-        return `&{template:default} {{name=Spellcasting}} {{${statLabel}=${roll}}}`;
+        const roll = `[[${dice}${inlineMod(mod)}${D20_CRIT}]]`;
+        return `&{template:default} {{name=Spellcasting${suffix}}} {{${statLabel}=${roll}}}`;
       }
       case 'damage': {
         const formula = (ds.formula || '').trim().replace(/\s/g, '');
