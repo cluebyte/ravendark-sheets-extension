@@ -37,6 +37,52 @@
   const D20_CRIT = 'cs20cf1';
 
   /**
+   * Sanitize a string for use inside Roll20 template {{key=value}} so that }} in the value
+   * does not break the template. Replaces }} with } }.
+   */
+  function sanitizeTemplateValue(str) {
+    if (str == null || typeof str !== 'string') return '';
+    return String(str).trim().replace(/\}\}/g, '} }');
+  }
+
+  /**
+   * Build optional {{Properties}}, {{Range}} fragment from dataset for damage/critical-damage rolls.
+   * Properties: bulleted list of property descriptions only (no separate Property notes).
+   * - data-weapon-properties: JSON array of { name, description? } (or fallback comma-separated names)
+   * - data-weapon-range: range band label(s), e.g. Near, Medium, Far (not numeric ft)
+   */
+  function appendWeaponFields(ds) {
+    let out = '';
+    const rawProps = (ds.weaponProperties || '').trim();
+    if (rawProps) {
+      try {
+        const parsed = JSON.parse(rawProps);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const descriptions = parsed
+            .filter((p) => p && p.description != null && String(p.description).trim() !== '')
+            .map((p) => String(p.description).trim());
+          if (descriptions.length > 0) {
+            const list = descriptions.map((d) => `${d}`).join('\n\n');
+            out += ` {{Properties=${sanitizeTemplateValue(list)}}}`;
+          } else {
+            const names = parsed.map((p) => (p && p.name != null ? String(p.name).trim() : '')).filter(Boolean);
+            if (names.length > 0) {
+              out += ` {{Properties=${sanitizeTemplateValue(names.join(', '))}}}`;
+            }
+          }
+        } else {
+          out += ` {{Properties=${sanitizeTemplateValue(rawProps)}}}`;
+        }
+      } catch (_) {
+        out += ` {{Properties=${sanitizeTemplateValue(rawProps)}}}`;
+      }
+    }
+    const range = sanitizeTemplateValue(ds.weaponRange);
+    if (range) out += ` {{Range=${range}}}`;
+    return out;
+  }
+
+  /**
    * Get d20 dice expression and label suffix from data-advantage.
    * advantage -> 2d20kh1 (keep highest), disadvantage -> 2d20kl1 (keep lowest), none -> 1d20.
    */
@@ -97,14 +143,14 @@
         if (!formula) return null;
         const weaponName = (ds.weaponName || '').trim();
         const name = weaponName ? `Damage: ${weaponName}` : 'Damage';
-        return `&{template:default} {{name=${name}}} {{Damage=[[${formula}]]}}`;
+        return `&{template:default} {{name=${name}}} {{Damage=[[${formula}]]}}${appendWeaponFields(ds)}`;
       }
       case 'critical-damage': {
         const formula = (ds.formula || '').trim().replace(/\s/g, '');
         if (!formula) return null;
         const weaponName = (ds.weaponName || '').trim();
         const name = weaponName ? `Critical Damage: ${weaponName}` : 'Critical Damage';
-        return `&{template:default} {{name=${name}}} {{Damage=[[${formula}]]}}`;
+        return `&{template:default} {{name=${name}}} {{Damage=[[${formula}]]}}${appendWeaponFields(ds)}`;
       }
       case 'spell-damage': {
         const bonus = ds.bonus != null ? parseInt(ds.bonus, 10) : 0;

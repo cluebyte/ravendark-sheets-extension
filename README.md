@@ -37,10 +37,15 @@ The extension looks for elements with `data-roll-type` on the sheet (set by the 
 |------|------------|------------------------|
 | `ability` | `data-ability`, `data-modifier` | `/roll 1d20 + <modifier>` |
 | `attack` | `data-modifier`, `data-stat`, etc. | `/roll 1d20 + <modifier>` |
-| `damage` | `data-formula`, `data-weapon-name` | `/roll <formula>` (e.g. 1d8+2) |
-| `critical-damage` | `data-formula`, `data-weapon-name` | `/roll <formula>` (e.g. 2d12+1) |
+| `damage` | `data-formula`, `data-weapon-name`, optional: `data-weapon-properties`, `data-weapon-range` | `/roll <formula>` (e.g. 1d8+2) + optional Properties, Property notes, Range in template |
+| `critical-damage` | `data-formula`, `data-weapon-name`, optional: `data-weapon-properties`, `data-weapon-range` | `/roll <formula>` (e.g. 2d12+1) + optional Properties, Property notes, Range in template |
 | `spellcasting` | `data-modifier`, `data-stat` | `/roll 1d20 + <modifier>` |
 | `spell-damage` | `data-bonus` | `/roll 1d6 + <bonus>` |
+
+**Weapon properties and range (damage / critical-damage):** Optional attributes so the Roll20 output can show weapon properties and range. The extension reads:
+
+- **`data-weapon-properties`** — JSON array of `{ "name": "Finesse", "description": "Use Dex or Str." }` (or plain comma-separated names). Under *Properties*, the extension shows a bulleted list of property descriptions only (e.g. `* <description 1>\n* <description 2>`).
+- **`data-weapon-range`** — Range band label(s), e.g. `Near`, `Medium`, `Far` (not numeric feet). Shown as *Range* in the roll.
 
 A MutationObserver re-scans the DOM when the page changes (e.g. expanding the Combat panel) so new roll areas get a button.
 
