@@ -58,11 +58,15 @@
       try {
         const parsed = JSON.parse(rawProps);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          const descriptions = parsed
-            .filter((p) => p && p.description != null && String(p.description).trim() !== '')
-            .map((p) => String(p.description).trim());
-          if (descriptions.length > 0) {
-            const list = descriptions.map((d) => `${d}`).join('\n\n');
+          const items = parsed
+            .filter((p) => p && p.name != null && String(p.name).trim() !== '')
+            .map((p) => {
+              const name = String(p.name).trim();
+              const desc = (p.description != null && String(p.description).trim() !== '') ? String(p.description).trim() : '';
+              return desc ? `* **${name}:** ${desc}` : `* **${name}**`;
+            });
+          if (items.length > 0) {
+            const list = items.join('\n');
             out += ` {{Properties=${sanitizeTemplateValue(list)}}}`;
           } else {
             const names = parsed.map((p) => (p && p.name != null ? String(p.name).trim() : '')).filter(Boolean);
