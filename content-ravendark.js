@@ -157,10 +157,18 @@
         return `&{template:default} {{name=${name}}} {{Damage=[[${formula}]]}}${appendWeaponFields(ds)}`;
       }
       case 'spell-damage': {
+        const spellName = (ds.spellName || '').trim();
+        const name = spellName ? `Spell Damage: ${spellName}` : 'Spell Damage';
+        const rawFormula = (ds.formula || '').trim();
+        if (rawFormula) {
+          const formula = rawFormula.replace(/\s/g, '');
+          return `&{template:default} {{name=${name}}} {{Damage=[[${formula}]]}}`;
+        }
+        // Fallback for sheets that only provide data-bonus (no data-formula)
         const bonus = ds.bonus != null ? parseInt(ds.bonus, 10) : 0;
         if (Number.isNaN(bonus)) return null;
         const roll = `[[1d6${inlineMod(bonus)}]]`;
-        return `&{template:default} {{name=Spell Damage}} {{Damage=${roll}}}`;
+        return `&{template:default} {{name=${name}}} {{Damage=${roll}}}`;
       }
       default:
         return null;
